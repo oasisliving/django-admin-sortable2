@@ -24,7 +24,9 @@ django.jQuery(function($) {
 					originals.reverse();
 				}
 				$(originals).each(function (index) {
-					$(this).find(order_input_field).val(index + 1);
+					// originally .find was looking for order_input_field which comes as an empty string for some reason,
+					// hence had to be replaced with .vIntegerField selector
+					$(this).find('.vIntegerField').val(index + 1);
 				});
 			}
 		});

@@ -4,9 +4,26 @@ django.jQuery(function($) {
 		var $order_div = $(this).nextUntil('div.default_order_field').next()
 		var default_order_field = $order_div.attr('default_order_field');
 		var default_order_direction = $order_div.attr('default_order_direction');
-		var order_input_field = 'input[name$="-' + default_order_field + '"]';
 		// first, try with tabluar inlines
 		var tabular_inlines = $(this).find('div.tabular table');
+		var v_integer_field_selector = '.vIntegerField';
+		// determine whether tabular or stacked inline admin is in use
+		if(tabular_inlines.length){
+			// Check if tabular_inline element contains element with .vIntegerField class
+			// if so, then target this element else keep original behaviour for tabular inline
+			// This way we can keep using this library together with django positions or as a standalone library.
+      		var order_input_field = (tabular_inlines.find(v_integer_field_selector).length > 0 )
+				? v_integer_field_selector
+				:  'input[name$="-' + default_order_field + '"]';
+		}else{
+			// if tabular_inlines is not in DOM, use stacked inlines
+			// we repeat the same behaviour for stacked inlines
+			var order_input_field = ($(this).find(v_integer_field_selector).length > 0 )
+				 ? v_integer_field_selector
+				 :  'input[name$="-' + default_order_field + '"]';
+    	}
+
+
 		tabular_inlines.sortable({
 			handle: $(this).find('tbody .drag'),
 			items: 'tr.form-row.has_original',
@@ -24,9 +41,7 @@ django.jQuery(function($) {
 					originals.reverse();
 				}
 				$(originals).each(function (index) {
-					// originally .find was looking for order_input_field which comes as an empty string for some reason,
-					// hence had to be replaced with .vIntegerField selector
-					$(this).find('.vIntegerField').val(index + 1);
+					$(this).find(order_input_field).val(index + 1);
 				});
 			}
 		});
